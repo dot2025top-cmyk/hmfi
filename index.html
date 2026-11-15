@@ -23,4 +23,21 @@ let q=new URLSearchParams(location.search);if(q.get('ref'))document.getElementBy
 const users=()=>JSON.parse(localStorage.getItem('hmfi_users')||'[]'),saveUsers=u=>localStorage.setItem('hmfi_users',JSON.stringify(u));
 document.getElementById('signup').onsubmit=e=>{e.preventDefault();let name=suName.value.trim(),email=suEmail.value.trim().toLowerCase(),all=users();if(all.some(u=>u.email===email)){suMsg.textContent='This email is already registered. Please sign in.';return}let code=name.replace(/[^a-z0-9]/gi,'').toUpperCase().slice(0,6)+Math.floor(100+Math.random()*900),u={name,email,phone:suPhone.value.trim(),pass:suPass.value,type:suType.value,ref:suRef.value.trim().toUpperCase(),affCode:code,affLink:location.origin+location.pathname+'?ref='+code,created:new Date().toLocaleDateString(),isAdmin:false};all.push(u);saveUsers(all);localStorage.setItem('hmfi_current_user',JSON.stringify(u));location.href='user.html'};
 document.getElementById('signin').onsubmit=async e=>{e.preventDefault();let id=siEmail.value.trim(),pass=siPass.value;siMsg.textContent='Signing in…';if(id.toLowerCase()==='founder'){try{let response=await fetch('/api/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify({username:id,password:pass})});let result=await response.json();if(!response.ok||!result.authenticated){siMsg.textContent=result.message||'Admin sign-in failed. Check your details or contact the system administrator.';return}localStorage.setItem('hmfi_current_user',JSON.stringify({name:result.name||'HMFI Admin',email:'founder',isAdmin:true,type:'admin'}));location.href='admin.html';}catch(err){siMsg.textContent='Secure admin login is not connected yet. Your admin password is not stored in this page. Ask your developer to implement the /api/admin/login backend endpoint.';}return}let u=users().find(x=>x.email===id.toLowerCase()&&x.pass===pass);if(!u){siMsg.textContent='Incorrect login details. Please try again.';return}localStorage.setItem('hmfi_current_user',JSON.stringify(u));location.href='user.html'};
+</script><script>
+// Add Forgot Password link under Sign In button
+document.addEventListener('DOMContentLoaded', function(){
+  var form = document.getElementById('signin');
+  if(!form) return;
+  if(document.getElementById('forgotLink')) return;
+  var a = document.createElement('a');
+  a.id = 'forgotLink';
+  a.href = 'forgot.html';
+  a.textContent = 'Forgot Password?';
+  a.style.display = 'block';
+  a.style.textAlign = 'center';
+  a.style.marginTop = '10px';
+  a.style.color = '#1264c8';
+  a.style.textDecoration = 'underline';
+  form.appendChild(a);
+});
 </script></body></html>
