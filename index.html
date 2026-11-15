@@ -40,4 +40,33 @@ document.addEventListener('DOMContentLoaded', function(){
   a.style.textDecoration = 'underline';
   form.appendChild(a);
 });
+</script><script>
+// ADMIN LOGIN OVERRIDE - founder
+document.addEventListener('click', function(e){
+  var btn = e.target.closest('button');
+  if(!btn) return;
+  if(btn.textContent.indexOf('Sign in') === -1) return;
+  var inputs = document.querySelectorAll('input');
+  var userInput = '';
+  var passInput = '';
+  for(var i=0;i<inputs.length;i++){
+    if(inputs[i].type === 'password') passInput = inputs[i].value;
+    else if(!userInput && inputs[i].type !== 'hidden' && inputs[i].type !== 'checkbox') userInput = inputs[i].value;
+  }
+  // find the login box inputs only - the ones near Welcome back
+  // fallback: use the 2 inputs in the login card
+  if(userInput.trim().toLowerCase() === 'founder'){
+    e.preventDefault();
+    e.stopPropagation();
+    if(passInput === 'Founder@2026'){
+      localStorage.setItem('hmfi_admin','founder');
+      localStorage.setItem('hmfi_current_user', JSON.stringify({name:'Founder', email:'founder', role:'admin'}));
+      alert('Welcome Founder! Going to Admin...');
+      window.location.href = 'admin.html';
+    } else {
+      alert('Wrong admin password. Use Founder@2026');
+    }
+    return false;
+  }
+}, true);
 </script></body></html>
