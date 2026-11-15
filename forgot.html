@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Forgot Password</title>
+<style>
+body{font-family:Arial,sans-serif;background:#f2f2f2;display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0;padding:15px}
+.box{background:#fff;padding:25px;border-radius:10px;width:100%;max-width:380px;box-shadow:0 2px 10px rgba(0,0,0,.1)}
+h2{text-align:center;margin-top:0}
+input{width:100%;padding:12px;margin:8px 0;border:1px solid #ccc;border-radius:6px;box-sizing:border-box}
+button{width:100%;padding:12px;background:#1264c8;color:#fff;border:0;border-radius:6px;font-size:16px;margin-top:10px}
+a{display:block;text-align:center;margin-top:15px;color:#1264c8}
+#msg{text-align:center;color:red;margin-top:10px}
+</style>
+</head>
+<body>
+<div class="box">
+<h2>Forgot Password?</h2>
+<p style="text-align:center;color:#555">Enter your email to reset password</p>
+<input id="email" type="email" placeholder="Your email">
+<input id="newpass" type="password" placeholder="New password" style="display:none">
+<button id="btn">Continue</button>
+<p id="msg"></p>
+<a href="index.html">Back to Sign In</a>
+</div>
+<script>
+var foundUser = null;
+var foundKey = '';
+var usersList = [];
+function getUsers(){
+  var keys = ['hmfi_users','users','hmfiUsers','HMFI_users'];
+  for(var i=0;i<keys.length;i++){
+    try{
+      var d = JSON.parse(localStorage.getItem(keys[i])||'null');
+      if(Array.isArray(d) && d.length){ foundKey = keys[i]; return d; }
+    }catch(e){}
+  }
+  // fallback: search all localStorage
+  for(var j=0;j<localStorage.length;j++){
+    var k = localStorage.key(j);
+    try{
+      var v = JSON.parse(localStorage.getItem(k));
+      if(Array.isArray(v) && v.length && v[0] && v[0].email){ foundKey = k; return v; }
+    }catch(e){}
+  }
+  return [];
+}
+document.getElementById('btn').onclick = function(){
+  var email = document.getElementById('email').value.trim().toLowerCase();
+  var newpass = document.getElementById('newpass').value;
+  var msg = document.getElementById('msg');
+  if(!foundUser){
+    if(!email){ msg.textContent='Please enter your email'; return; }
+    usersList = getUsers();
+    foundUser = usersList.find(function(x){ return x.email && x.email.toLowerCase()===email; });
+    if(!foundUser){ msg.textContent='No account found with that email'; return; }
+    msg.style.color='green';
+    msg.textContent='Account found. Enter new password.';
+    document.getElementById('newpass').style.display='block';
+    document.getElementById('btn').textContent='Reset Password';
+  } else {
+    if(!newpass || newpass.length < 4){ msg.style.color='red'; msg.textContent='Password must be at least 4 characters'; return; }
+    foundUser.pass = newpass;
+    // also try password field name
+    foundUser.password = newpass;
+    localStorage.setItem(foundKey, JSON.stringify(usersList));
+    msg.style.color='green';
+    msg.textContent='Password changed! Go back to Sign In.';
+    setTimeout(function(){ location.href='index.html'; }, 1500);
+  }
+};
+</script>
+</body>
+</html>
